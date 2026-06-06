@@ -1,0 +1,11 @@
+metric,value
+players_analyzed,10.0
+mean_std_early,3.135745818277157
+mean_std_late,0.6880536374671579
+mean_std_ratio,0.2668391879957925
+mean_variability_reduction_pct,0.7331608120042075
+share_with_reduced_variability,1.0
+paired_t_stat,3.9800653714492835
+paired_t_pvalue,0.0032054820247726474
+wilcoxon_stat,0.0
+wilcoxon_pvalue,0.001953125

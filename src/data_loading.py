@@ -28,8 +28,31 @@ def raw_data_dir(base_path: str | Path | None = None) -> Path:
 	return resolve_repo_root(base_path) / "data" / "raw"
 
 
-def processed_data_dir(base_path: str | Path | None = None) -> Path:
-	return resolve_repo_root(base_path) / "data" / "processed"
+def processed_data_dir(
+	base_path: str | Path | None = None,
+	experiment_name: str | None = None,
+) -> Path:
+	"""Return the processed-data directory.
+
+	If ``experiment_name`` is provided, return an experiment-scoped subfolder.
+	"""
+
+	root = resolve_repo_root(base_path) / "data" / "processed"
+	if experiment_name:
+		return root / experiment_name
+	return root
+
+
+def results_data_dir(
+	base_path: str | Path | None = None,
+	experiment_name: str | None = None,
+) -> Path:
+	"""Return the results directory, optionally scoped by experiment."""
+
+	root = resolve_repo_root(base_path) / "data" / "results"
+	if experiment_name:
+		return root / experiment_name
+	return root
 
 
 def list_raw_files(base_path: str | Path | None = None) -> list[str]:
@@ -46,16 +69,28 @@ def load_wca_tables(base_path: str | Path | None = None) -> dict[str, pd.DataFra
 	}
 
 
-def load_selected_players(base_path: str | Path | None = None) -> pd.DataFrame:
+def load_selected_players(
+	base_path: str | Path | None = None,
+	experiment_name: str | None = None,
+) -> pd.DataFrame:
 	"""Load selected players from processed data."""
 
-	return pd.read_csv(processed_data_dir(base_path) / "selected_players.csv")
+	return pd.read_csv(
+		processed_data_dir(base_path, experiment_name=experiment_name)
+		/ "selected_players.csv"
+	)
 
 
-def load_player_trajectories(base_path: str | Path | None = None) -> pd.DataFrame:
+def load_player_trajectories(
+	base_path: str | Path | None = None,
+	experiment_name: str | None = None,
+) -> pd.DataFrame:
 	"""Load per-player trajectories from processed data."""
 
-	trajectories = pd.read_csv(processed_data_dir(base_path) / "player_trajectories.csv")
+	trajectories = pd.read_csv(
+		processed_data_dir(base_path, experiment_name=experiment_name)
+		/ "player_trajectories.csv"
+	)
 	if "competition_date" in trajectories.columns:
 		trajectories["competition_date"] = pd.to_datetime(
 			trajectories["competition_date"], errors="coerce"
