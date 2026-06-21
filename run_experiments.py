@@ -399,7 +399,7 @@ def run_distribution_analysis(trajectories: pd.DataFrame, results_dir: Path) -> 
     return distribution_metrics, variability_comparison, distribution_summary
 
 
-def run_experiment(config: ExperimentConfig, base_path: Path) -> None:
+def run_experiment(config: ExperimentConfig, base_path: Path) -> dict[str, object]:
     tables = load_wca_tables(base_path)
     competitions_with_dates = add_competition_dates(tables["competitions"])
     prepared_results = prepare_results_with_dates(tables["results"], competitions_with_dates, config.event_id)
@@ -440,8 +440,20 @@ def run_experiment(config: ExperimentConfig, base_path: Path) -> None:
     dfa_results = run_dfa(residuals_df, model_comparison, results_dir)
     distribution_metrics, variability_comparison, distribution_summary = run_distribution_analysis(trajectories, results_dir)
 
+    power_wins = int((model_comparison["winner"] == "power_law").sum()) if not model_comparison.empty else 0
+    exp_wins = int((model_comparison["winner"] == "exponential").sum()) if not model_comparison.empty else 0
+    mean_power_r2 = float(model_comparison["power_r2"].mean()) if not model_comparison.empty else float("nan")
+    mean_exp_r2 = float(model_comparison["exp_r2"].mean()) if not model_comparison.empty else float("nan")
+    mean_hurst = float(dfa_results["hurst"].mean()) if not dfa_results.empty else float("nan")
+    persistent_share = float((dfa_results["noise_type"] == "persistent").mean()) if not dfa_results.empty else float("nan")
+    mean_std_ratio = (
+        float(variability_comparison["std_ratio"].mean()) if not variability_comparison.empty else float("nan")
+    )
+
     extra = {
         "experiment_name": config.name,
+        "event": config.event_id,
+        "players": config.n_players,
         "raw_data_dir": str(raw_data_dir(base_path)),
         "processed_dir": str(processed_dir),
         "results_dir": str(results_dir),
@@ -457,7 +469,20 @@ def run_experiment(config: ExperimentConfig, base_path: Path) -> None:
     save_config(config, processed_dir, extra=extra)
     save_config(config, results_dir, extra=extra)
 
+    summary_row = {
+        "event": config.event_id,
+        "players": config.n_players,
+        "power_wins": power_wins,
+        "exp_wins": exp_wins,
+        "mean_power_r2": mean_power_r2,
+        "mean_exp_r2": mean_exp_r2,
+        "mean_hurst": mean_hurst,
+        "persistent_share": persistent_share,
+        "mean_std_ratio": mean_std_ratio,
+    }
+
     print(f"[done] {config.name}: selected={len(selected_players)}, trajectories={len(trajectories)}, dfa={len(dfa_results)}")
+    return summary_row
 
 
 def main() -> None:
@@ -476,9 +501,16 @@ def main() -> None:
 
     base_path = Path(args.base_path).resolve()
     configs = parse_experiment_specs(args.experiments)
+    summary_rows = []
 
     for config in configs:
-        run_experiment(config, base_path)
+        summary_rows.append(run_experiment(config, base_path))
+
+    experiment_summary = pd.DataFrame(summary_rows)
+    summary_output = results_data_dir(base_path) / "experiment_summary.csv"
+    summary_output.parent.mkdir(parents=True, exist_ok=True)
+    experiment_summary.to_csv(summary_output, index=False)
+    print(f"Saved experiment summary to: {summary_output}")
 
 
 if __name__ == "__main__":
