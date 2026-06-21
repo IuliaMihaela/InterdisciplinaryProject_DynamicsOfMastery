@@ -32,7 +32,7 @@ class ExperimentConfig:
 
 def parse_experiment_specs(specs: Iterable[str] | None) -> list[ExperimentConfig]:
     if not specs:
-        specs = ["333:10", "333:25", "333:50", "222:25", "444:25", "555:25", "666:25", "777:25"]
+        specs = ["333:10", "333:25", "333:50", "222:25", "444:25", "555:25", "666:25", "777:25", "pyram:25", "skewb:25"]
 
     parsed: list[ExperimentConfig] = []
     for spec in specs:
@@ -482,6 +482,13 @@ def run_experiment(config: ExperimentConfig, base_path: Path) -> dict[str, objec
     }
 
     print(f"[done] {config.name}: selected={len(selected_players)}, trajectories={len(trajectories)}, dfa={len(dfa_results)}")
+    
+    # have analysis summary per experiment
+    pd.DataFrame([summary_row]).to_csv(
+    results_dir / "experiment_summary.csv",
+    index=False
+    )
+
     return summary_row
 
 
@@ -506,9 +513,25 @@ def main() -> None:
     for config in configs:
         summary_rows.append(run_experiment(config, base_path))
 
+    # experiment_summary = pd.DataFrame(summary_rows)
+    # summary_output = results_data_dir(base_path) / "experiment_summary.csv"
+    # summary_output.parent.mkdir(parents=True, exist_ok=True)
+    # experiment_summary.to_csv(summary_output, index=False)
+
+    # have analysis summary for all experiments run 
+    # (it appends to already existing summary if exists)
     experiment_summary = pd.DataFrame(summary_rows)
     summary_output = results_data_dir(base_path) / "experiment_summary.csv"
-    summary_output.parent.mkdir(parents=True, exist_ok=True)
+    if summary_output.exists():
+        existing = pd.read_csv(summary_output)
+        experiment_summary = pd.concat(
+            [existing, experiment_summary],
+            ignore_index=True
+        )
+        experiment_summary = experiment_summary.drop_duplicates(
+            subset=["event", "players"],
+            keep="last"
+        )
     experiment_summary.to_csv(summary_output, index=False)
     print(f"Saved experiment summary to: {summary_output}")
 
