@@ -442,6 +442,7 @@ def run_experiment(config: ExperimentConfig, base_path: Path) -> dict[str, objec
 
     power_wins = int((model_comparison["winner"] == "power_law").sum()) if not model_comparison.empty else 0
     exp_wins = int((model_comparison["winner"] == "exponential").sum()) if not model_comparison.empty else 0
+    power_win_pct = float(power_wins / config.n_players) if config.n_players > 0 else float("nan")
     mean_power_r2 = float(model_comparison["power_r2"].mean()) if not model_comparison.empty else float("nan")
     mean_exp_r2 = float(model_comparison["exp_r2"].mean()) if not model_comparison.empty else float("nan")
     mean_hurst = float(dfa_results["hurst"].mean()) if not dfa_results.empty else float("nan")
@@ -470,9 +471,11 @@ def run_experiment(config: ExperimentConfig, base_path: Path) -> dict[str, objec
     save_config(config, results_dir, extra=extra)
 
     summary_row = {
+        "experiment_name": config.name,
         "event": config.event_id,
         "players": config.n_players,
         "power_wins": power_wins,
+        "power_win_pct": power_win_pct,
         "exp_wins": exp_wins,
         "mean_power_r2": mean_power_r2,
         "mean_exp_r2": mean_exp_r2,
@@ -529,7 +532,7 @@ def main() -> None:
             ignore_index=True
         )
         experiment_summary = experiment_summary.drop_duplicates(
-            subset=["event", "players"],
+            subset=["experiment_name"],
             keep="last"
         )
     experiment_summary.to_csv(summary_output, index=False)
