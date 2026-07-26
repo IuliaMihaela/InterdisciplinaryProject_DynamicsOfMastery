@@ -1,0 +1,5 @@
+criterion,winner,count
+AIC,power_law,16
+AIC,exponential,9
+BIC,power_law,16
+BIC,exponential,9

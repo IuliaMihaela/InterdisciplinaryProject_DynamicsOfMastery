@@ -1,0 +1,2 @@
+event,players,power_wins,exp_wins,mean_power_r2,mean_exp_r2,mean_hurst,persistent_share,mean_std_ratio
+skewb,25,16,9,0.4842775584899919,0.47475255722756593,0.6065915037437799,0.68,0.4671102906797809

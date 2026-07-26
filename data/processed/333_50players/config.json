@@ -1,0 +1,23 @@
+{
+  "event_id": "333",
+  "n_players": 50,
+  "min_results": 50,
+  "selection_min_results": 100,
+  "fallback_min_results": 50,
+  "min_span": 3,
+  "execution_date_utc": "2026-06-21T13:58:51.763050+00:00",
+  "experiment_name": "333_50players",
+  "event": "333",
+  "players": 50,
+  "raw_data_dir": "D:\\OneDrive - TU Wien\\Interdisciplinary Project\\InterdisciplinaryProject_DynamicsOfMastery\\data\\raw",
+  "processed_dir": "D:\\OneDrive - TU Wien\\Interdisciplinary Project\\InterdisciplinaryProject_DynamicsOfMastery\\data\\processed\\333_50players",
+  "results_dir": "D:\\OneDrive - TU Wien\\Interdisciplinary Project\\InterdisciplinaryProject_DynamicsOfMastery\\data\\results\\333_50players",
+  "candidate_players_count": 5908,
+  "selected_players_count": 50,
+  "trajectory_rows": 28412,
+  "model_rows": 50,
+  "dfa_rows": 50,
+  "distribution_metric_rows": 100,
+  "variability_rows": 50,
+  "distribution_summary_rows": 6
+}

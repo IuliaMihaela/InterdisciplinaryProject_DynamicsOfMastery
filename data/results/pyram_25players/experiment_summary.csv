@@ -1,0 +1,2 @@
+event,players,power_wins,exp_wins,mean_power_r2,mean_exp_r2,mean_hurst,persistent_share,mean_std_ratio
+pyram,25,16,9,0.5788656133855392,0.5623149317243824,0.5974411271258766,0.76,0.431446638477632
