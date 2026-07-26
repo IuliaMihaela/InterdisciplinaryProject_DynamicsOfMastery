@@ -5,7 +5,7 @@
   "selection_min_results": 100,
   "fallback_min_results": 50,
   "min_span": 3,
-  "execution_date_utc": "2026-06-21T14:01:44.984918+00:00",
+  "execution_date_utc": "2026-07-26T17:21:44.320825+00:00",
   "experiment_name": "skewb_25players",
   "event": "skewb",
   "players": 25,
