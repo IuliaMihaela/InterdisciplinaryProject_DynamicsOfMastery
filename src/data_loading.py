@@ -1,3 +1,7 @@
+"""
+These functions support data reading (raw, processed and results) for the WCA exploration.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -21,10 +25,13 @@ def resolve_repo_root(base_path: str | Path | None = None) -> Path:
 		return candidate
 	if (candidate.parent / "data" / "raw").exists():
 		return candidate.parent
-	return candidate
+	#return candidate
+	# Fail if the data directory structure is missing
+	raise FileNotFoundError(f"Could not find 'data/raw' in {candidate} or its parent.")
 
 
 def raw_data_dir(base_path: str | Path | None = None) -> Path:
+	"""Return the absolute path to the raw data directory."""
 	return resolve_repo_root(base_path) / "data" / "raw"
 
 
@@ -56,11 +63,17 @@ def results_data_dir(
 
 
 def list_raw_files(base_path: str | Path | None = None) -> list[str]:
+	"""List all available raw WCA export files."""
 	return sorted(path.name for path in raw_data_dir(base_path).iterdir() if path.is_file())
 
 
 def load_wca_tables(base_path: str | Path | None = None) -> dict[str, pd.DataFrame]:
-	"""Load the WCA TSV exports needed for the exploration notebook."""
+	"""
+    Load the core WCA TSV exports into a dictionary of Pandas DataFrames.
+    
+    Returns:
+        dict[str, pd.DataFrame]: Mapped dictionary of raw data tables.
+    """
 
 	directory = raw_data_dir(base_path)
 	return {
@@ -73,7 +86,7 @@ def load_selected_players(
 	base_path: str | Path | None = None,
 	experiment_name: str | None = None,
 ) -> pd.DataFrame:
-	"""Load selected players from processed data."""
+	"""Load the shortlisted candidate players from the scoped processed data directory."""
 
 	return pd.read_csv(
 		processed_data_dir(base_path, experiment_name=experiment_name)
@@ -85,7 +98,10 @@ def load_player_trajectories(
 	base_path: str | Path | None = None,
 	experiment_name: str | None = None,
 ) -> pd.DataFrame:
-	"""Load per-player trajectories from processed data."""
+	"""
+    Load the cleaned, sequential player trajectories from processed data.
+    Ensures datetime columns are correctly parsed upon loading.
+    """
 
 	trajectories = pd.read_csv(
 		processed_data_dir(base_path, experiment_name=experiment_name)

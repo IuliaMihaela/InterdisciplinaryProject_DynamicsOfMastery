@@ -1,3 +1,9 @@
+"""
+This module contains visualization helpers for the learning curve analysis.
+It generates report-ready Matplotlib figures for raw trajectories, model fits,
+residual series, and Detrended Fluctuation Analysis (DFA) scaling.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 

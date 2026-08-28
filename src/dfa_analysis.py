@@ -1,6 +1,5 @@
-"""Reusable detrended fluctuation analysis helpers.
-
-These functions support the residual analysis notebook by providing a compact
+"""
+These functions support residual analysis by providing a
 Hurst-exponent estimate and a human-readable noise classification.
 """
 
@@ -10,7 +9,7 @@ import math
 
 import numpy as np
 
-
+# delete? already in learning_models.py as the residuals function
 def compute_residuals(y_true, y_pred):
 	"""Return residuals as ``y_true - y_pred``.
 
@@ -21,7 +20,11 @@ def compute_residuals(y_true, y_pred):
 
 
 def _window_fluctuation(profile, scale):
-	"""Compute DFA fluctuation for one window size."""
+	"""Compute the root-mean-square fluctuation of a profile for a given window size (scale).
+	It chops the profile into 
+    non-overlapping segments, fits a linear trend to each, and measures 
+    the variance of the residuals around that trend.
+	"""
 
 	window_count = len(profile) // scale
 	if window_count == 0:
@@ -29,18 +32,23 @@ def _window_fluctuation(profile, scale):
 
 	fluctuations = []
 	for index in range(window_count):
+		# Get the current window
 		segment = profile[index * scale : (index + 1) * scale]
 		if len(segment) < 2:
 			continue
+		# Fit a 1st-degree polynomial to the window
 		x_values = np.arange(len(segment), dtype=float)
 		coefficients = np.polyfit(x_values, segment, deg=1)
 		trend = np.polyval(coefficients, x_values)
+
+		# Detrend the segment by subtracting the linear fit
 		residuals = segment - trend
 		fluctuations.append(float(np.mean(residuals**2)))
 
 	if not fluctuations:
 		return np.nan
 
+	# Return the root mean square of all window fluctuations
 	return float(math.sqrt(np.mean(fluctuations)))
 
 
@@ -62,17 +70,18 @@ def calculate_hurst_exponent(signal, min_scale=4, n_scales=20):
 	if signal.size < min_scale * 2:
 		raise ValueError("signal must contain enough finite values for DFA")
 
-	# Step 1: mean center the signal.
+	# Mean center the signal
 	signal = signal - np.mean(signal)
 
-	# Step 2: build the cumulative profile.
+	# Build the cumulative profile (converts noise into a random walk)
 	profile = np.cumsum(signal)
 
+	# Max scale is set to N/4 to ensure at least 4 windows to average over
 	max_scale = signal.size // 4
 	if max_scale < min_scale:
 		raise ValueError("signal is too short to estimate a Hurst exponent")
 
-	# Step 3: choose window sizes on a logarithmic grid.
+	# Choose window sizes(scales) evenly spaced on a logarithmic grid
 	scales = np.unique(
 		np.logspace(np.log10(min_scale), np.log10(max_scale), n_scales).astype(int)
 	)
@@ -80,6 +89,7 @@ def calculate_hurst_exponent(signal, min_scale=4, n_scales=20):
 
 	fluctuations = []
 	valid_scales = []
+	# Calculate the fluctuation for each window size
 	for scale in scales:
 		fluctuation = _window_fluctuation(profile, int(scale))
 		if np.isfinite(fluctuation) and fluctuation > 0:
@@ -92,10 +102,13 @@ def calculate_hurst_exponent(signal, min_scale=4, n_scales=20):
 	valid_scales = np.asarray(valid_scales, dtype=float)
 	fluctuations = np.asarray(fluctuations, dtype=float)
 
-	# Step 5: fit the line in log-log space; the slope is the Hurst exponent.
+	# Fit a line in log-log space to find the scaling behavior
+	# The slope of this line is the empirical Hurst exponent
 	log_scales = np.log(valid_scales)
 	log_fluctuations = np.log(fluctuations)
 	slope, intercept = np.polyfit(log_scales, log_fluctuations, deg=1)
+
+	# Calculate R-squared to verify if the log-log relationship is indeed linear
 	predicted = intercept + slope * log_scales
 	ss_res = np.sum((log_fluctuations - predicted) ** 2)
 	ss_tot = np.sum((log_fluctuations - np.mean(log_fluctuations)) ** 2)
@@ -114,7 +127,11 @@ def calculate_hurst_exponent(signal, min_scale=4, n_scales=20):
 
 
 def classify_noise(h):
-	"""Classify a Hurst exponent into a simple noise regime."""
+	"""Classify a Hurst exponent into a simple noise regime.
+	< 0.45 : Anti-persistent (alternating high/low values)
+    0.45 to 0.55 : Uncorrelated (White noise, random)
+    > 0.55 : Persistent (Positive correlations, 'memory' or 'flow')
+	"""
 
 	if h is None or not np.isfinite(h):
 		return "unknown"
