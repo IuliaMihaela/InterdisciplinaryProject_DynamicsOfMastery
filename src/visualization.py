@@ -134,9 +134,40 @@ def plot_residual_series(x, residuals, player_id=None):
     return fig, ax
 
 
+def plot_distribution_overlay(early_values, late_values, player_id=None, bins=None):
+    """Plot early-vs-late performance distributions with mean markers."""
+
+    early_values = np.asarray(early_values, dtype=float)
+    late_values = np.asarray(late_values, dtype=float)
+
+    if bins is None:
+        # Keep behavior close to notebook defaults while adapting to sample size.
+        bins = max(12, int(np.sqrt(min(len(early_values), len(late_values)))))
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.hist(early_values, bins=bins, alpha=0.55, label="Early (first 25%)", density=True)
+    ax.hist(late_values, bins=bins, alpha=0.55, label="Late (last 25%)", density=True)
+    ax.axvline(np.mean(early_values), linestyle="--", color="C0", linewidth=1)
+    ax.axvline(np.mean(late_values), linestyle="--", color="C1", linewidth=1)
+
+    ax.set_xlabel("Solve time (seconds)")
+    ax.set_ylabel("Density")
+
+    title = "Early vs Late Distribution"
+    if player_id:
+        title += f" ({player_id})"
+    ax.set_title(title)
+
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    return fig, ax
+
+
 __all__ = [
     "plot_learning_curve",
     "plot_model_fits",
     "plot_dfa_scaling",
     "plot_residual_series",
+    "plot_distribution_overlay",
 ]
