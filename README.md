@@ -15,6 +15,7 @@ The project uses historical competition results from the World Cube Association 
 
 The analysis is designed to be reproducible and extensible across multiple WCA events and different numbers of players.
 
+
 ---
 
 ## Research Questions
@@ -55,7 +56,7 @@ The models are fitted separately for each player and compared using:
 ---
 
 ### RQ2 — Temporal structure of residuals
-After removing the fitted learning curve, do the remaining performance fluctuations behave like independent noise, or do they retain temporal structure?
+After removing the fitted learning curve, do the remaining performance fluctuations behave like independent noise or do they retain temporal structure?
 
 For each observation, the residual is defined as:
 
@@ -141,6 +142,7 @@ A value of:
 │       ├── 555_25players/
 │       ├── pyram_25players/
 │       ├── skewb_25players/
+        └── experiment_summary.csv
 │
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
@@ -440,7 +442,7 @@ data/processed/case_study_333_10players/
 data/results/case_study_333_10players/
 ```
 
-The generalized pipeline recreates the 3x3x3 run in:
+The generalized 333:10 experiment is a separate pipeline run and does not necessarily contain the same player cohort as the original case study.
 
 ```text
 data/processed/333_10players/
@@ -508,33 +510,33 @@ The current rerun indicates three broad patterns.
 
 ## 1. Power-law learning curves generally outperform exponential curves
 
-Across the rerun experimental conditions, the power-law model is selected more frequently than the exponential model.
+Across the 210 evaluated trajectories, the power-law model is preferred for 160 trajectories (76.2%), while the exponential model is preferred for 50 trajectories.
 
 This suggests that improvement may be better characterized by a decelerating power-law process than by a simple exponential decay.
 
-The effect is strongest for the larger cube events and remains present, although weaker, for other puzzle types. In the current rerun, the power-law model wins in the majority of analyzed trajectories in every experimental condition, with the strongest dominance observed for the 333, 444, and 555 events.
+The strongest power-law dominance is observed in the 3x3x3 and 4x4x4 experiments, while the preference remains present but weaker in 2x2x2, Pyraminx, Skewb and 5x5x5.
 
 ---
 
 ## 2. Residuals retain temporal structure
 
-The estimated Hurst exponents are generally above $0.5$.
-
-This indicates that the residual fluctuations are not consistent with completely uncorrelated white noise.
+The estimated Hurst exponents are above the theoretical white-noise benchmark of $H=0.5$ across all tested experiments. Most residual trajectories are classified as persistent according to the study's threshold of $H>0.55$.
 
 Instead, performance fluctuations retain temporal dependence.
 
-The strength of this persistence varies across events, with 555 and 444 showing the strongest persistence and 222 / pyram / skewb staying closer to the threshold.
+The strength of this persistence varies across events, with 555 and 444 showing the highest mean Hurst exponents and 222 / pyram / skewb staying closer to the threshold.
 
 ---
 
 ## 3. Performance variability tends to decrease
 
-The late-to-early standard-deviation ratio is below $1$ across the tested conditions.
+The mean late-to-early standard-deviation ratio is below 1 across all tested experimental conditions.
 
-This indicates that performance distributions generally become more concentrated as players improve.
+This indicates that within-player performance variability generally decreases.
 
-The effect appears strongest for 444 and 555 and weaker for 222, pyram, and skewb, but the general direction remains consistent.
+The reduction is strongest for 444 and 555 and weaker for 222, pyram, and skewb, but the general direction remains consistent.
+
+The distributions also become more symmetric and show reduced skewness and kurtosis, consistent with fewer extreme performance deviations
 
 ---
 
@@ -543,8 +545,9 @@ The effect appears strongest for 444 and 555 and weaker for 222, pyram, and skew
 To reproduce the analysis:
 
 1. Clone or download the repository.
-2. Install the required Python dependencies.
-3. Place the required WCA data files in:
+2. Ensure you have Python 3.12+ installed.
+3. Install the required Python dependencies.
+4. Place the required WCA data files in:
 
 ```text
 data/raw/
@@ -567,7 +570,7 @@ python run_experiments.py
 06_cross_experiment_summary.ipynb
 ```
 
-The first five notebooks should be run against `data/processed/case_study_333_10players/` and `data/results/case_study_333_10players/`; the generalized pipeline then recreates `data/processed/333_10players/` and `data/results/333_10players/`.
+The first five notebooks are designed around the original 333:10 case-study outputs: `data/processed/case_study_333_10players/` and `data/results/case_study_333_10players/`; the generalized pipeline then recreates `data/processed/333_10players/` and `data/results/333_10players/`.
 
 For the cross-experiment analysis, run the experiment pipeline first so that:
 
@@ -577,29 +580,3 @@ data/results/experiment_summary.csv
 
 contains the results of all desired experiments.
 
----
-
-# Project Status
-
-The current implementation provides a complete preliminary analysis pipeline for:
-
-* data preparation,
-* player selection,
-* learning-curve fitting,
-* model comparison,
-* residual analysis,
-* DFA-based estimation of temporal dependence,
-* early-versus-late variability analysis,
-* cross-event and cross-sample-size comparison.
-
-The current results should be considered preliminary and are intended to guide further discussion and refinement of the methodology.
-
-Potential future work includes:
-
-* more extensive statistical testing,
-* sensitivity analysis of player-selection criteria,
-* alternative learning-curve models,
-* robustness analysis across additional events,
-* improved treatment of temporal irregularity,
-* analysis of competition frequency and time-based learning trajectories,
-* more detailed comparison between puzzle types.
