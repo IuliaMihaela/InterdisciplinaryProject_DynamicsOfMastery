@@ -1,13 +1,10 @@
-Notebooks 1-5 focus on the original $333:10$ case study and use the separated folder `case_study_333_10players` so the exploratory phase stays distinct from the later generalized pipeline runs.
-
-
 # The Dynamics of Mastery
 
 ## Non-Linear Dynamics and Statistical Physics of Human Skill Acquisition
 
 This repository contains the code and analysis for an interdisciplinary project investigating the dynamics of human skill acquisition using competitive Rubik's Cube performance data.
 
-The project uses historical competition results from the World Cube Association (WCA) to study how solving performance evolves over time and whether the observed learning dynamics exhibit:
+The project uses historical competition results from the World Cube Association (WCA) to study how solving performance evolves over observed competitive experience and whether the observed learning dynamics exhibit:
 
 1. **Power-law or exponential learning behavior**
 2. **Temporal dependence in performance fluctuations**
@@ -15,10 +12,9 @@ The project uses historical competition results from the World Cube Association 
 
 The analysis is designed to be reproducible and extensible across multiple WCA events and different numbers of players.
 
-
 ---
 
-## Research Questions
+# Research Questions
 
 ### RQ1 — Learning-curve model
 
@@ -34,10 +30,10 @@ $$
 
 where:
 
-* $x$ is the sequential solve index,
-* $y(x)$ is the average solve time,
-* $a$ is a scale parameter,
-* $b$ controls the rate of improvement,
+* $x$ is the sequential observation index;
+* $y(x)$ is the average solve time;
+* $a$ is a scale parameter;
+* $b$ controls the rate of improvement;
 * $c$ is the asymptotic performance floor.
 
 ### Exponential model
@@ -53,9 +49,12 @@ The models are fitted separately for each player and compared using:
 * Akaike Information Criterion (AIC)
 * Bayesian Information Criterion (BIC)
 
+The sequential observation index represents the chronological order of a player's observed competition results. It is therefore a proxy for accumulated observed competitive experience, rather than real elapsed time.
+
 ---
 
 ### RQ2 — Temporal structure of residuals
+
 After removing the fitted learning curve, do the remaining performance fluctuations behave like independent noise or do they retain temporal structure?
 
 For each observation, the residual is defined as:
@@ -77,6 +76,8 @@ The interpretation is approximately:
 * $H < 0.45$: anti-persistent behavior
 * $0.45 \leq H \leq 0.55$: approximately uncorrelated behavior
 * $H > 0.55$: persistent behavior
+
+The theoretical white-noise benchmark is $H=0.5$.
 
 The DFA scaling relationship is:
 
@@ -122,7 +123,7 @@ A value of:
 │   │   └── WCA export files
 │   │
 │   ├── processed/
-│   │    ├── case_study_333_10players/
+│   │   ├── case_study_333_10players/
 │   │   ├── 333_10players/
 │   │   ├── 333_25players/
 │   │   ├── 333_50players/
@@ -142,7 +143,7 @@ A value of:
 │       ├── 555_25players/
 │       ├── pyram_25players/
 │       ├── skewb_25players/
-        └── experiment_summary.csv
+│       └── experiment_summary.csv
 │
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
@@ -178,9 +179,7 @@ The raw data should be placed in:
 data/raw/
 ```
 
-The raw data directory is excluded from git. The WCA export files are downloaded from 
-https://www.worldcubeassociation.org/export/results
-
+The raw data directory is excluded from git. The WCA export files are downloaded from the World Cube Association results export.
 
 ---
 
@@ -231,7 +230,7 @@ fit_parameters.csv
 residuals.csv
 ```
 
-These files are written to `data/results/case_study_333_10players/` for the case-study run, and to `data/results/333_10players/` when the generalized pipeline is rerun.
+These files are written to `data/results/case_study_333_10players/` for the case-study run, and to the corresponding generalized experiment directory when the pipeline is rerun.
 
 ---
 
@@ -251,7 +250,7 @@ This notebook:
 6. Classifies the residual behavior as:
 
    * anti-persistent,
-   * uncorrelated,
+   * approximately uncorrelated,
    * persistent.
 
 The main output is:
@@ -342,12 +341,71 @@ The notebook examines:
 * variability reduction,
 * sample-size stability.
 
+It also performs several additional analyses requested during the development of the project.
+
+### Representative model-fit visualizations
+
+Representative player trajectories are plotted together with both fitted models:
+
+* observed solving times,
+* fitted power-law curve,
+* fitted exponential curve.
+
+These visualizations provide a direct comparison between the two candidate learning curves and complement the numerical model-selection criteria.
+
+Examples are selected from the generalized experiments to illustrate different degrees of model preference.
+
+### Player-profile analysis
+
+The notebook performs an exploratory comparison of players classified according to their preferred model.
+
+The analysis considers:
+
+* trajectory length,
+* gender,
+* registration/start year,
+* nationality.
+
+The purpose is to investigate whether observable player characteristics are associated with model preference.
+
+This analysis is exploratory and descriptive. In particular, nationality groups have uneven sample sizes, so country-level differences are not interpreted as evidence of a nationality effect.
+
+### Relative improvement analysis
+
+Relative improvement is calculated as:
+
+$$
+\text{Relative improvement}
+=
+\frac{\text{early mean}-\text{late mean}}
+{\text{early mean}}
+$$
+
+where the early and late means correspond to the first and last quarters of each player's trajectory.
+
+The analysis compares relative improvement between players whose trajectories are classified as power-law or exponential.
+
+The current results show similar average improvement between the two groups, while the exponential group displays greater variability in individual improvement.
+
+### Equal-length trajectory robustness
+
+Because the full player trajectories have different lengths, an additional model-comparison analysis uses only the first 200 observations for every player.
+
+This provides a common temporal window across all 210 trajectories and tests whether the model preference observed over complete trajectories is sensitive to trajectory length.
+
+The equal-length analysis is particularly important because the full-trajectory model comparison and the fixed-window comparison produce different model-preference patterns.
+
+### Cross-experiment visualizations
+
 The notebook also produces cross-experiment visualizations, including:
 
 * power-law win-rate plots,
 * Hurst-exponent comparisons,
 * variability-ratio comparisons,
-* a cross-experiment heatmap.
+* a cross-experiment heatmap,
+* representative model-fit plots,
+* player-profile comparisons,
+* equal-length model-comparison results.
 
 Its input is the aggregated experiment table produced by the generalized pipeline, so it reflects the rerun experiments rather than the case-study folder.
 
@@ -442,7 +500,7 @@ data/processed/case_study_333_10players/
 data/results/case_study_333_10players/
 ```
 
-The generalized 333:10 experiment is a separate pipeline run and does not necessarily contain the same player cohort as the original case study.
+The generalized `333:10` experiment is a separate pipeline run and does not necessarily contain the same player cohort as the original case study.
 
 ```text
 data/processed/333_10players/
@@ -502,41 +560,168 @@ For example:
 | pyram |      25 |                64% |      0.597 |          0.431 |
 | skewb |      25 |                64% |      0.607 |          0.467 |
 
+Across all eight experimental conditions, there are 210 analyzed trajectories.
+
 ---
 
 # Current Preliminary Findings
 
-The current rerun indicates three broad patterns.
+The current analysis identifies several recurring patterns, while also showing that some results depend on the temporal extent of the trajectory.
 
-## 1. Power-law learning curves generally outperform exponential curves
+## 1. Power-law learning curves are preferred over full trajectories
 
 Across the 210 evaluated trajectories, the power-law model is preferred for 160 trajectories (76.2%), while the exponential model is preferred for 50 trajectories.
 
-This suggests that improvement may be better characterized by a decelerating power-law process than by a simple exponential decay.
+The power law is the majority-winning model in every full-trajectory experimental condition.
 
-The strongest power-law dominance is observed in the 3x3x3 and 4x4x4 experiments, while the preference remains present but weaker in 2x2x2, Pyraminx, Skewb and 5x5x5.
+The strongest power-law dominance is observed in the 3x3x3 and 4x4x4 experiments, while the preference is weaker in 2x2x2, Pyraminx, Skewb, and 5x5x5.
+
+This suggests that power-law-like improvement is a recurring pattern in the complete available trajectories, although the strength of model preference varies between events.
+
+### Sample-size comparison for 3x3x3
+
+When the number of analyzed players was increased from 10 to 25 and 50, the power law remained the preferred model for the majority of full trajectories.
+
+The corresponding power-law win rates were:
+
+* 333:10 — 100%
+* 333:25 — 84%
+* 333:50 — 84%
+
+This provides an initial robustness check across sample sizes.
 
 ---
 
-## 2. Residuals retain temporal structure
+## 2. Model preference depends on temporal window length
 
-The estimated Hurst exponents are above the theoretical white-noise benchmark of $H=0.5$ across all tested experiments. Most residual trajectories are classified as persistent according to the study's threshold of $H>0.55$.
+An equal-length robustness analysis was performed using only the first 200 observations for every player.
 
-Instead, performance fluctuations retain temporal dependence.
+This produces a different model-preference pattern:
 
-The strength of this persistence varies across events, with 555 and 444 showing the highest mean Hurst exponents and 222 / pyram / skewb staying closer to the threshold.
+| Experimental condition | Power Law | Exponential | Power-Law % |
+| ---------------------- | --------: | ----------: | ----------: |
+| 333:10                 |         3 |           7 |         30% |
+| 333:25                 |         9 |          16 |         36% |
+| 333:50                 |        22 |          28 |         44% |
+| 222:25                 |         5 |          20 |         20% |
+| 444:25                 |        14 |          11 |         56% |
+| 555:25                 |        10 |          15 |         40% |
+| Pyraminx:25            |         4 |          21 |         16% |
+| Skewb:25               |         5 |          20 |         20% |
+
+Across all 210 trajectories:
+
+* Power law: 72 trajectories (34.3%)
+* Exponential: 138 trajectories (65.7%)
+
+This contrasts with the full-trajectory result of 160 power-law and 50 exponential preferences.
+
+The result indicates that model preference is sensitive to the temporal extent of the trajectory. Therefore, the 76.2% power-law dominance observed in the full trajectories should not be interpreted as a uniform preference across all stages of progression.
+
+Instead, model preference appears to depend partly on the amount of observed trajectory available.
 
 ---
 
-## 3. Performance variability tends to decrease
+## 3. Residuals retain persistent temporal structure
+
+The estimated Hurst exponents are above the theoretical white-noise benchmark of $H=0.5$ across all tested experiments.
+
+Mean Hurst exponents range from approximately 0.60 for Pyraminx to approximately 0.84 for 5x5x5.
+
+Most residual trajectories are classified as persistent according to the study's threshold of $H>0.55$.
+
+This indicates that performance fluctuations retain temporal dependence rather than behaving as purely independent white noise.
+
+The strength of this persistence varies across events, with 555 and 444 showing the highest mean Hurst exponents and 222, Pyraminx, and Skewb remaining closer to the persistence threshold.
+
+These results are interpreted as evidence of persistent temporal structure rather than as proof of a single universal mechanism.
+
+---
+
+## 4. Performance variability tends to decrease
 
 The mean late-to-early standard-deviation ratio is below 1 across all tested experimental conditions.
 
-This indicates that within-player performance variability generally decreases.
+This indicates that within-player performance variability generally decreases during the later part of the observed trajectory.
 
-The reduction is strongest for 444 and 555 and weaker for 222, pyram, and skewb, but the general direction remains consistent.
+The reduction is strongest for 444 and 555 and weaker for 222, Pyraminx, and Skewb, but the general direction remains consistent.
 
-The distributions also become more symmetric and show reduced skewness and kurtosis, consistent with fewer extreme performance deviations
+The distribution analysis also shows changes in skewness and kurtosis between early and late phases, consistent with fewer extreme performance deviations in the later phase.
+
+---
+
+## 5. Relative improvement is similar between model groups
+
+Both model groups show substantial improvement over their observed trajectories.
+
+The current relative-improvement results are:
+
+| Model       | Players | Mean Improvement | Median Improvement |     SD |
+| ----------- | ------: | ---------------: | -----------------: | -----: |
+| Exponential |      50 |           25.91% |             26.31% | 14.70% |
+| Power Law   |     160 |           23.78% |             23.94% |  7.80% |
+
+The mean improvement is therefore broadly similar between the two groups.
+
+However, improvement is considerably more variable among exponential-model players. The standard deviation of individual improvement is 14.70% for the exponential group compared with 7.80% for the power-law group.
+
+This suggests that players in the two model groups can show similar overall improvement while differing in the consistency of that improvement across individuals.
+
+---
+
+## 6. Exploratory player-profile analysis
+
+The analysis was extended to investigate whether observable player characteristics distinguish power-law and exponential trajectories.
+
+### Trajectory length
+
+Player trajectories range from 221 to 860 observations. All selected players therefore have substantially more observations than the minimum required for inclusion.
+
+The power-law group has longer trajectories overall:
+
+* Power law: median 474 observations
+* Exponential: median 356.5 observations
+
+This difference is descriptive and may partly reflect differences in available career history or model discrimination over longer trajectories.
+
+### Registration/start year
+
+The median registration/start year is:
+
+* Power law: 2011
+* Exponential: 2013.5
+
+This difference may reflect differences between player cohorts or competition eras. It should not be interpreted as an age effect.
+
+### Gender
+
+Gender shows relatively little variation between the two model groups. Both groups are predominantly male, so gender does not currently provide a strong descriptive distinction between the model classes.
+
+### Nationality
+
+Nationality shows some exploratory variation across countries.
+
+However, country-level sample sizes are uneven, with several countries represented by only a small number of players. The observed differences should therefore be interpreted descriptively rather than as evidence of a nationality effect.
+
+Overall, the current player-profile analysis does not identify a single clear demographic characteristic that distinguishes power-law from exponential trajectories.
+
+---
+
+# Robustness Across Sample Sizes and Events
+
+The current cross-experiment analysis shows that the main qualitative patterns observed in the original 3x3x3 case study also appear across multiple events, although their strength varies.
+
+Across the full available trajectories:
+
+1. power-law learning curves are preferred for the majority of trajectories;
+2. residual performance fluctuations exhibit persistent temporal structure;
+3. late-stage performance variability is lower than early-stage variability.
+
+However, the equal-length analysis demonstrates that the first conclusion is sensitive to temporal extent. When all players are restricted to their first 200 observations, exponential fits become the majority preference.
+
+The statistical characteristics also differ between events. The 3x3x3 and 4x4x4 events currently show stronger power-law model preference over the full trajectories, while 4x4x4 and 5x5x5 show stronger residual persistence and variability contraction than 2x2x2, Pyraminx, and Skewb.
+
+Taken together, the results suggest that the statistical characteristics of skill acquisition are broadly consistent across the tested events but are not identical between events or across different temporal windows.
 
 ---
 
@@ -553,13 +738,13 @@ To reproduce the analysis:
 data/raw/
 ```
 
-4. Run the experiment pipeline:
+5. Run the experiment pipeline:
 
 ```bash
 python run_experiments.py
 ```
 
-5. Open the notebooks in order:
+6. Open the notebooks in order:
 
 ```text
 01_data_exploration.ipynb
@@ -570,7 +755,19 @@ python run_experiments.py
 06_cross_experiment_summary.ipynb
 ```
 
-The first five notebooks are designed around the original 333:10 case-study outputs: `data/processed/case_study_333_10players/` and `data/results/case_study_333_10players/`; the generalized pipeline then recreates `data/processed/333_10players/` and `data/results/333_10players/`.
+The first five notebooks are designed around the original 333:10 case-study outputs:
+
+```text
+data/processed/case_study_333_10players/
+data/results/case_study_333_10players/
+```
+
+The generalized pipeline then recreates the corresponding experiment directories, including:
+
+```text
+data/processed/333_10players/
+data/results/333_10players/
+```
 
 For the cross-experiment analysis, run the experiment pipeline first so that:
 
@@ -579,4 +776,3 @@ data/results/experiment_summary.csv
 ```
 
 contains the results of all desired experiments.
-
