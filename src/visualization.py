@@ -37,12 +37,63 @@ def plot_learning_curve(x, y, player_id=None):
 
 
 
+# def plot_model_fits(
+#     x,
+#     y,
+#     power_pred,
+#     exp_pred,
+#     player_id=None
+# ):
+#     """
+#     Plot observed data together with fitted models.
+#     """
+
+#     fig, ax = plt.subplots(figsize=(10, 5))
+
+#     ax.scatter(
+#         x,
+#         y,
+#         s=10,
+#         alpha=0.4,
+#         label="Observed"
+#     )
+
+#     ax.plot(
+#         x,
+#         power_pred,
+#         linewidth=2,
+#         label="Power Law"
+#     )
+
+#     ax.plot(
+#         x,
+#         exp_pred,
+#         linewidth=2,
+#         label="Exponential"
+#     )
+
+#     ax.set_xlabel("Solve Index")
+#     ax.set_ylabel("Best Solve Time (seconds)")
+
+#     title = "Learning Curve Model Comparison"
+#     if player_id:
+#         title += f" ({player_id})"
+
+#     ax.set_title(title)
+
+#     ax.legend()
+
+#     ax.grid(True, alpha=0.3)
+
+#     return fig, ax
+
 def plot_model_fits(
     x,
     y,
     power_pred,
     exp_pred,
-    player_id=None
+    player_id=None,
+    title=None
 ):
     """
     Plot observed data together with fitted models.
@@ -62,7 +113,7 @@ def plot_model_fits(
         x,
         power_pred,
         linewidth=2,
-        label="Power Law"
+        label="Power law"
     )
 
     ax.plot(
@@ -72,20 +123,22 @@ def plot_model_fits(
         label="Exponential"
     )
 
-    ax.set_xlabel("Solve Index")
-    ax.set_ylabel("Best Solve Time (seconds)")
+    ax.set_xlabel("Competition observation index")
+    ax.set_ylabel("Average solve time (seconds)")
 
-    title = "Learning Curve Model Comparison"
-    if player_id:
-        title += f" ({player_id})"
+    if title is None:
+        title = "Learning Curve Model Comparison"
+        if player_id is not None:
+            title += f" ({player_id})"
 
-    ax.set_title(title)
-
+    ax.set_title(title, fontsize=11)
     ax.legend()
-
     ax.grid(True, alpha=0.3)
 
+    fig.tight_layout()
+
     return fig, ax
+
 
 def plot_dfa_scaling(scales, fluctuations, slope=None, intercept=None, player_id=None):
     """Plot DFA scaling on log-log axes with an optional fitted line."""
